@@ -6,6 +6,14 @@ if [ ! -d "STREAM" ] || [ ! -d "oneDNN" ]; then
   git submodule init
 fi
 
+if git submodule status stream >/dev/null 2>&1 && git submodule status oneDNN >/dev/null 2>&1; then
+  echo "stream and oneDNN submodules are already initialized."
+else
+  echo "stream and oneDNN submodules are not initialized. Initializing..."
+  git submodule init
+  git submodule update
+fi
+
 # 检查是否需要执行构建和编译操作
 if [ "$1" == "make" ]; then
   cd oneDNN
