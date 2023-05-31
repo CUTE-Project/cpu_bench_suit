@@ -1,0 +1,6 @@
+[submodule "STREAM"]
+	path = STREAM
+	url = https://github.com/aayejinpeng/STREAM.git
+[submodule "oneDNN"]
+	path = oneDNN
+	url = https://github.com/aayejinpeng/oneDNN.git
