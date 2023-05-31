@@ -65,12 +65,15 @@ elif [ "$1" == "report_onednn" ]; then
 
   ONEDNN_VERBOSE=profile_exec ./cnn_inference_f32_avx512 > perf.avx512
   echo "Execution of cnn_inference_f32_avx512 completed."
+  awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.avx512
 
   ONEDNN_VERBOSE=profile_exec ./cnn_inference_f32_avx2 > perf.avx2
   echo "Execution of cnn_inference_f32_avx2 completed."
-  
+  awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.avx2
+
   ONEDNN_VERBOSE=profile_exec ./cnn_inference_f32_sse41 > perf.sse41
   echo "Execution of cnn_inference_f32_sse41 completed."
+  awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.sse41
 
   cp ./perf.* ../../
 elif [ "$1" == "report_stream" ]; then
