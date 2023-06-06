@@ -64,22 +64,73 @@ elif [ "$1" == "report_onednn" ]; then
   g++ -I ${DNNLROOT}/include -I ${DNNLROOT}/../include -Wl,-rpath ${DNNLROOT}/src -L ${DNNLROOT}/src cnn_inference_f32_sse41.cpp -ldnnl -g -o cnn_inference_f32_sse41
 
   ONEDNN_VERBOSE=profile_exec ./cnn_inference_f32_avx512 > perf.avx512
-  echo "Execution of cnn_inference_f32_avx512 completed."
-  awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration(ms) is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.avx512
-  awk -F',' '$4 == "convolution" { sum += $NF; count++ } END { print "The number of convolution layers executed: " count; print "The total duration(ms) is: " sum ; print "Average convolution time(ms): " sum/count }' ./perf.avx512
-  echo ""
+  if [ -s perf.avx512 ]; then
+    echo "Execution of cnn_inference_f32_avx512 completed."
+    awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration(ms) is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.avx512
+    awk -F',' '$4 == "convolution" { sum += $NF; count++ } END { print "The number of convolution layers executed: " count; print "The total duration(ms) is: " sum ; print "Average convolution time(ms): " sum/count }' ./perf.avx512
+    echo ""
+  else
+	echo "Execution of cnn_inference_f32_avx512 Failed!."
+  fi
   
   ONEDNN_VERBOSE=profile_exec ./cnn_inference_f32_avx2 > perf.avx2
-  echo "Execution of cnn_inference_f32_avx2 completed."
-  awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration(ms) is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.avx2
-  awk -F',' '$4 == "convolution" { sum += $NF; count++ } END { print "The number of convolution layers executed: " count; print "The total duration(ms) is: " sum ; print "Average convolution time(ms): " sum/count }' ./perf.avx2
-  echo ""
+  if [ -s perf.avx2 ]; then
+    echo "Execution of cnn_inference_f32_avx2 completed."
+    awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration(ms) is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.avx2
+    awk -F',' '$4 == "convolution" { sum += $NF; count++ } END { print "The number of convolution layers executed: " count; print "The total duration(ms) is: " sum ; print "Average convolution time(ms): " sum/count }' ./perf.avx2
+    echo ""
+  else
+	echo "Execution of cnn_inference_f32_avx2 Failed!."
+  fi
 
   ONEDNN_VERBOSE=profile_exec ./cnn_inference_f32_sse41 > perf.sse41
-  echo "Execution of cnn_inference_f32_sse41 completed."
-  awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration(ms) is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.sse41
-  awk -F',' '$4 == "convolution" { sum += $NF; count++ } END { print "The number of convolution layers executed: " count; print "The total duration(ms) is: " sum ; print "Average convolution time(ms): " sum/count }' ./perf.sse41
-  echo ""
+if [ -s perf.sse41 ]; then
+    echo "Execution of cnn_inference_f32_sse41 completed."
+    awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration(ms) is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.sse41
+    awk -F',' '$4 == "convolution" { sum += $NF; count++ } END { print "The number of convolution layers executed: " count; print "The total duration(ms) is: " sum ; print "Average convolution time(ms): " sum/count }' ./perf.sse41
+    echo ""
+  else
+	echo "Execution of cnn_inference_f32_sse41 Failed!."
+  fi
+
+  cp ./perf.* ../../
+elif [ "$1" == "report_onednn" ]; then
+  cd oneDNN/examples
+  export DNNLROOT=$(realpath ../build)
+
+  g++ -I ${DNNLROOT}/include -I ${DNNLROOT}/../include -Wl,-rpath ${DNNLROOT}/src -L ${DNNLROOT}/src cnn_inference_f32_avx512.cpp -ldnnl -g -o cnn_inference_f32_avx512
+  g++ -I ${DNNLROOT}/include -I ${DNNLROOT}/../include -Wl,-rpath ${DNNLROOT}/src -L ${DNNLROOT}/src cnn_inference_f32_avx2.cpp -ldnnl -g -o cnn_inference_f32_avx2
+  g++ -I ${DNNLROOT}/include -I ${DNNLROOT}/../include -Wl,-rpath ${DNNLROOT}/src -L ${DNNLROOT}/src cnn_inference_f32_sse41.cpp -ldnnl -g -o cnn_inference_f32_sse41
+
+  ONEDNN_VERBOSE=profile_exec ./cnn_inference_f32_avx512 > perf.avx512
+  if [ -s perf.avx512 ]; then
+    echo "Execution of cnn_inference_f32_avx512 completed."
+    awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration(ms) is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.avx512
+    awk -F',' '$4 == "convolution" { sum += $NF; count++ } END { print "The number of convolution layers executed: " count; print "The total duration(ms) is: " sum ; print "Average convolution time(ms): " sum/count }' ./perf.avx512
+    echo ""
+  else
+	echo "Execution of cnn_inference_f32_avx512 Failed!."
+  fi
+  
+  ONEDNN_VERBOSE=profile_exec ./cnn_inference_f32_avx2 > perf.avx2
+  if [ -s perf.avx2 ]; then
+    echo "Execution of cnn_inference_f32_avx2 completed."
+    awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration(ms) is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.avx2
+    awk -F',' '$4 == "convolution" { sum += $NF; count++ } END { print "The number of convolution layers executed: " count; print "The total duration(ms) is: " sum ; print "Average convolution time(ms): " sum/count }' ./perf.avx2
+    echo ""
+  else
+	echo "Execution of cnn_inference_f32_avx2 Failed!."
+  fi
+
+  ONEDNN_VERBOSE=profile_exec ./cnn_inference_f32_sse41 > perf.sse41
+  if [ -s perf.sse41 ]; then
+    echo "Execution of cnn_inference_f32_sse41 completed."
+    awk -F',' '$4 == "inner_product" { sum += $NF; count++ } END { print "The number of inner product layers executed: " count; print "The total duration(ms) is: " sum ; print "Average inner_product time(ms): " sum/count }' ./perf.sse41
+    awk -F',' '$4 == "convolution" { sum += $NF; count++ } END { print "The number of convolution layers executed: " count; print "The total duration(ms) is: " sum ; print "Average convolution time(ms): " sum/count }' ./perf.sse41
+    echo ""
+  else
+	echo "Execution of cnn_inference_f32_sse41 Failed!."
+  fi
 
   cp ./perf.* ../../
 elif [ "$1" == "report_stream" ]; then
