@@ -94,6 +94,99 @@ elif [ "$1" == "report_onednn" ]; then
   fi
 
   cp ./perf.* ../../
+elif [ "$1" == "report_onednn_more" ]; then
+  cd oneDNN/examples
+  export DNNLROOT=$(realpath ../build)
+
+  g++ -I ${DNNLROOT}/include -I ${DNNLROOT}/../include -Wl,-rpath ${DNNLROOT}/src -L ${DNNLROOT}/src cnn_inference_f32_avx512.cpp -ldnnl -g -o cnn_inference_f32_avx512
+  g++ -I ${DNNLROOT}/include -I ${DNNLROOT}/../include -Wl,-rpath ${DNNLROOT}/src -L ${DNNLROOT}/src cnn_inference_f32_avx2.cpp -ldnnl -g -o cnn_inference_f32_avx2
+  g++ -I ${DNNLROOT}/include -I ${DNNLROOT}/../include -Wl,-rpath ${DNNLROOT}/src -L ${DNNLROOT}/src cnn_inference_f32_sse41.cpp -ldnnl -g -o cnn_inference_f32_sse41
+
+  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=l1d_Info ./cnn_inference_f32_avx512 > perf_l1d.avx512
+  if [ -s perf_l1d.avx512 ]; then
+    echo "Execution l1d_Info of cnn_inference_f32_avx512 completed."
+    echo ""
+  else
+	echo "Execution l1d_Info of cnn_inference_f32_avx512 Failed!."
+	echo ""
+  fi
+
+  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_W_Info ./cnn_inference_f32_avx512 > perf_llc_w.avx512
+  if [ -s perf_llc_w.avx512 ]; then
+    echo "Execution LLC_W_Info of cnn_inference_f32_avx512 completed."
+    echo ""
+  else
+	echo "Execution LLC_W_Info of cnn_inference_f32_avx512 Failed!."
+	echo ""
+  fi
+
+  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_R_Info ./cnn_inference_f32_avx512 > perf_llc_r.avx512
+  if [ -s perf_llc_r.avx512 ]; then
+    echo "Execution LLC_R_Info of cnn_inference_f32_avx512 completed."
+    echo ""
+  else
+	echo "Execution LLC_R_Info of cnn_inference_f32_avx512 Failed!."
+	echo ""
+  fi
+
+    ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=l1d_Info ./cnn_inference_f32_avx2 > perf_l1d.avx2
+  if [ -s perf_l1d.avx2 ]; then
+    echo "Execution l1d_Info of cnn_inference_f32_avx2 completed."
+    echo ""
+  else
+	echo "Execution l1d_Info of cnn_inference_f32_avx2 Failed!."
+	echo ""
+  fi
+
+  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_W_Info ./cnn_inference_f32_avx2 > perf_llc_w.avx2
+  if [ -s perf_llc_w.avx2 ]; then
+    echo "Execution LLC_W_Info of cnn_inference_f32_avx2 completed."
+    echo ""
+  else
+	echo "Execution LLC_W_Info of cnn_inference_f32_avx2 Failed!."
+	echo ""
+  fi
+
+  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_R_Info ./cnn_inference_f32_avx2 > perf_llc_r.avx2
+  if [ -s perf_llc_r.avx2 ]; then
+    echo "Execution LLC_R_Info of cnn_inference_f32_avx2 completed."
+    echo ""
+  else
+	echo "Execution LLC_R_Info of cnn_inference_f32_avx2 Failed!."
+	echo ""
+  fi
+  
+  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=l1d_Info ./cnn_inference_f32_sse41 > perf_l1d.sse41
+  if [ -s perf_l1d.sse41 ]; then
+    echo "Execution l1d_Info of cnn_inference_f32_sse41 completed."
+    echo ""
+  else
+	echo "Execution l1d_Info of cnn_inference_f32_sse41 Failed!."
+	echo ""
+  fi
+
+  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_W_Info ./cnn_inference_f32_sse41 > perf_llc_w.sse41
+  if [ -s perf_llc_w.sse41 ]; then
+    echo "Execution LLC_W_Info of cnn_inference_f32_sse41 completed."
+    echo ""
+  else
+	echo "Execution LLC_W_Info of cnn_inference_f32_sse41 Failed!."
+	echo ""
+  fi
+
+  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_R_Info ./cnn_inference_f32_sse41 > perf_llc_r.sse41
+  if [ -s perf_llc_r.sse41 ]; then
+    echo "Execution LLC_R_Info of cnn_inference_f32_sse41 completed."
+    echo ""
+  else
+	echo "Execution LLC_R_Info of cnn_inference_f32_sse41 Failed!."
+	echo ""
+  fi
+
+  cp ./perf_l1d.* ../../
+  cp ./perf_llc_r.* ../../
+  cp ./perf_llc_w.* ../../
+
 elif [ "$1" == "report_stream" ]; then
   cd STREAM
   gcc -Ofast -DSTREAM_ARRAY_SIZE=100000000 -DNTIMES=100 stream.c -o stream.100M
