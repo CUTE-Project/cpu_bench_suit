@@ -6,13 +6,10 @@ if [ ! -d "STREAM" ] || [ ! -d "oneDNN" ]; then
   git submodule init
 fi
 
-if git submodule status STREAM >/dev/null 2>&1 && git submodule status oneDNN >/dev/null 2>&1; then
-  echo "stream and oneDNN submodules are already initialized."
-else
-  echo "stream and oneDNN submodules are not initialized. Initializing..."
-  git submodule init
-  git submodule update
-fi
+echo "stream and oneDNN submodules are not initialized. Initializing..."
+git submodule init
+git submodule update
+echo "stream and oneDNN submodules are already initialized."
 
 # 检查是否需要执行构建和编译操作
 if [ "$1" == "make" ]; then
@@ -102,7 +99,7 @@ elif [ "$1" == "report_onednn_more" ]; then
   g++ -I ${DNNLROOT}/include -I ${DNNLROOT}/../include -Wl,-rpath ${DNNLROOT}/src -L ${DNNLROOT}/src cnn_inference_f32_avx2.cpp -ldnnl -g -o cnn_inference_f32_avx2
   g++ -I ${DNNLROOT}/include -I ${DNNLROOT}/../include -Wl,-rpath ${DNNLROOT}/src -L ${DNNLROOT}/src cnn_inference_f32_sse41.cpp -ldnnl -g -o cnn_inference_f32_sse41
 
-  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=l1d_Info ./cnn_inference_f32_avx512 > perf_l1d.avx512
+  sudo ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=l1d_Info ./cnn_inference_f32_avx512 > perf_l1d.avx512
   if [ -s perf_l1d.avx512 ]; then
     echo "Execution l1d_Info of cnn_inference_f32_avx512 completed."
     echo ""
@@ -111,7 +108,7 @@ elif [ "$1" == "report_onednn_more" ]; then
 	echo ""
   fi
 
-  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_W_Info ./cnn_inference_f32_avx512 > perf_llc_w.avx512
+  sudo ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_W_Info ./cnn_inference_f32_avx512 > perf_llc_w.avx512
   if [ -s perf_llc_w.avx512 ]; then
     echo "Execution LLC_W_Info of cnn_inference_f32_avx512 completed."
     echo ""
@@ -120,7 +117,7 @@ elif [ "$1" == "report_onednn_more" ]; then
 	echo ""
   fi
 
-  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_R_Info ./cnn_inference_f32_avx512 > perf_llc_r.avx512
+  sudo ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_R_Info ./cnn_inference_f32_avx512 > perf_llc_r.avx512
   if [ -s perf_llc_r.avx512 ]; then
     echo "Execution LLC_R_Info of cnn_inference_f32_avx512 completed."
     echo ""
@@ -129,7 +126,7 @@ elif [ "$1" == "report_onednn_more" ]; then
 	echo ""
   fi
 
-    ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=l1d_Info ./cnn_inference_f32_avx2 > perf_l1d.avx2
+  sudo ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=l1d_Info ./cnn_inference_f32_avx2 > perf_l1d.avx2
   if [ -s perf_l1d.avx2 ]; then
     echo "Execution l1d_Info of cnn_inference_f32_avx2 completed."
     echo ""
@@ -138,7 +135,7 @@ elif [ "$1" == "report_onednn_more" ]; then
 	echo ""
   fi
 
-  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_W_Info ./cnn_inference_f32_avx2 > perf_llc_w.avx2
+  sudo ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_W_Info ./cnn_inference_f32_avx2 > perf_llc_w.avx2
   if [ -s perf_llc_w.avx2 ]; then
     echo "Execution LLC_W_Info of cnn_inference_f32_avx2 completed."
     echo ""
@@ -147,7 +144,7 @@ elif [ "$1" == "report_onednn_more" ]; then
 	echo ""
   fi
 
-  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_R_Info ./cnn_inference_f32_avx2 > perf_llc_r.avx2
+  sudo ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_R_Info ./cnn_inference_f32_avx2 > perf_llc_r.avx2
   if [ -s perf_llc_r.avx2 ]; then
     echo "Execution LLC_R_Info of cnn_inference_f32_avx2 completed."
     echo ""
@@ -156,7 +153,7 @@ elif [ "$1" == "report_onednn_more" ]; then
 	echo ""
   fi
   
-  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=l1d_Info ./cnn_inference_f32_sse41 > perf_l1d.sse41
+  sudo ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=l1d_Info ./cnn_inference_f32_sse41 > perf_l1d.sse41
   if [ -s perf_l1d.sse41 ]; then
     echo "Execution l1d_Info of cnn_inference_f32_sse41 completed."
     echo ""
@@ -165,7 +162,7 @@ elif [ "$1" == "report_onednn_more" ]; then
 	echo ""
   fi
 
-  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_W_Info ./cnn_inference_f32_sse41 > perf_llc_w.sse41
+  sudo ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_W_Info ./cnn_inference_f32_sse41 > perf_llc_w.sse41
   if [ -s perf_llc_w.sse41 ]; then
     echo "Execution LLC_W_Info of cnn_inference_f32_sse41 completed."
     echo ""
@@ -174,7 +171,7 @@ elif [ "$1" == "report_onednn_more" ]; then
 	echo ""
   fi
 
-  ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_R_Info ./cnn_inference_f32_sse41 > perf_llc_r.sse41
+  sudo ONEDNN_VERBOSE=profile_exec ONEDNN_VERBOSE_MORE=LLC_R_Info ./cnn_inference_f32_sse41 > perf_llc_r.sse41
   if [ -s perf_llc_r.sse41 ]; then
     echo "Execution LLC_R_Info of cnn_inference_f32_sse41 completed."
     echo ""
