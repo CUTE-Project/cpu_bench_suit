@@ -4,3 +4,6 @@
 [submodule "oneDNN"]
 	path = oneDNN
 	url = https://github.com/aayejinpeng/oneDNN.git
+[submodule "onnxruntime"]
+	path = onnxruntime
+	url = git@github.com:aayejinpeng/onnxruntime.git
