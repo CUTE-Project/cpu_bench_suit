@@ -1,12 +1,6 @@
 #!/bin/bash
 
-# 检查当前目录是否存在stream和oneDNN文件夹
-if [ ! -d "STREAM" ] || [ ! -d "oneDNN" ]; then
-  # 初始化submodule
-  git submodule init
-fi
-
-echo "stream and oneDNN submodules are not initialized. Initializing..."
+echo "stream and oneDNN submodules are Initializing..."
 git submodule init
 git submodule update
 echo "stream and oneDNN submodules are already initialized."
@@ -21,6 +15,17 @@ if [ "$1" == "make" ]; then
   # 编译和构建
   cmake .. -DCMAKE_BUILD_TYPE=Debug -DDNNL_CPU_RUNTIME=SEQ
   make -j16
+
+  # 返回上级目录
+  cd ../
+
+  exit 0
+fi
+
+# 检查是否需要执行构建和编译操作
+if [ "$1" == "make_onnx" ]; then
+  cd onnxruntime
+  ./build.sh --config Release --use_dnnl --build_wheel --build --update --build_shared_lib --parallel --compile_no_warning_as_error --skip_tests
 
   # 返回上级目录
   cd ../
@@ -190,5 +195,72 @@ elif [ "$1" == "report_stream" ]; then
   ./stream.100M > perf.stream
   echo "Execution of stream completed."
   cp ./perf.stream ../
+elif [ "$1" == "report_onnx_with_cnn" ]; then
+  cd onnxruntime
+  export ONNXROOT=$(realpath .)
+  mkdir cnn_model
+  cd cnn_model
+  files=(
+    "bvlcalexnet-12.onnx=https://github.com/onnx/models/raw/main/vision/classification/alexnet/model/bvlcalexnet-12.onnx"
+    "kitten.jpg=https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
+    "resnet34-v1-7.onnx=https://github.com/onnx/models/raw/main/vision/classification/resnet/model/resnet34-v1-7.onnx"
+    "resnet50-v1-12.onnx=https://github.com/onnx/models/raw/main/vision/classification/resnet/model/resnet50-v1-12.onnx"
+    "synset.txt=https://s3.amazonaws.com/onnx-model-zoo/synset.txt"
+    "vgg19-7.onnx=https://github.com/onnx/models/raw/main/vision/classification/vgg/model/vgg19-7.onnx")
+
+	for item in "${files[@]}"; do
+		IFS="=" read -r filename url <<< "$item"
+		if [ ! -f "$filename" ]; then
+			if [ -z "$url" ]; then
+				echo "File '$filename' is missing and no download URL is specified."
+			else
+				echo "Downloading '$filename' from '$url'..."
+				wget "$url"
+				echo "Download of '$filename' complete."
+			fi
+		else
+			echo "File '$filename' already exists."
+		fi
+	done
+
+  cd ..
+  cp ./cnn_onnx_run.py ./build/Linux/Release/cnn_onnx_run.py
+  cd ./build/Linux/Release
+
+  #!/bin/bash
+
+	model_paths=(
+	"$ONNXROOT/cnn_model/vgg19-7.onnx"
+	"$ONNXROOT/cnn_model/bvlcalexnet-12.onnx"
+	"$ONNXROOT/cnn_model/resnet34-v1-7.onnx"
+	"$ONNXROOT/cnn_model/resnet50-v1-12.onnx"
+	)
+
+	output_files=(
+	"onnxperf.vgg19"
+	"onnxperf.alexnet"
+	"onnxperf.resnet34"
+	"onnxperf.resnet50"
+	)
+
+	perf_subtest=(
+	"l1d_info"
+	"llc_w_info"
+	"llc_r_info"
+	"cycles_info"
+	)
+
+	for i in "${!model_paths[@]}"; do
+	model_path="${model_paths[$i]}"
+	for j in "${!perf_subtest[@]}"; do
+		output_file="${output_files[$i]}.${perf_subtest[$j]}"
+		perf_test="${perf_subtest[$j]}"
+
+		ONEDNN_VERBOSE=1 ONEDNN_VERBOSE_MORE="$perf_test" python cnn_onnx_run.py "$model_path" "$ONNXROOT/cnn_model/synset.txt" "$ONNXROOT/cnn_model/kitten.jpg" > "$output_file"
+	done
+	done
+
+	cp ./onnxperf.* $ONNXROOT/../
+
 fi
 
