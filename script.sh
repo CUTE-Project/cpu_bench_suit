@@ -275,9 +275,31 @@ elif [ "$1" == "report_onnx_with_cnn" ]; then
 	cp ./onnxperf.* $ONNXROOT/../
 
 elif [ "$1" == "report_onnx_with_bert" ]; then
-  cp -r ./bert_model_requred/* ./onnxruntime/build/Linux/Release/
-  export ONNXROOT=$(realpath ./onnxruntime)
-  cd onnxruntime/build/Linux/Release
+
+ export ONNXROOT=$(realpath ./onnxruntime)
+  bert_model=(
+	"bertsquad-12.onnx=https://github.com/onnx/models/raw/main/text/machine_comprehension/bert-squad/model/bertsquad-12.onnx"
+  )
+  mkdir bert_model_requred
+  cd bert_model_requred
+  for item in "${bert_model[@]}"; do
+	IFS="=" read -r filename url <<< "$item"
+	if [ ! -f "$filename" ]; then
+		if [ -z "$url" ]; then
+			echo "File '$filename' is missing and no download URL is specified."
+		else
+			echo "Downloading '$filename' from '$url'..."
+			wget "$url"
+			echo "Download of '$filename' complete."
+		fi
+	else
+		echo "File '$filename' already exists."
+	fi
+  done
+
+  cp -r ./* ../onnxruntime/build/Linux/Release/
+  cd ../onnxruntime/build/Linux/Release
+  python ./bertonnx_fix.py 
   mkdir output.bert
   perf_subtest=(
 	"l1d_info"
