@@ -250,6 +250,18 @@ elif [ "$1" == "report_onnx_with_cnn" ]; then
 	"cycles_info"
 	)
 
+	model_paths=(
+	"$ONNXROOT/cnn_model/resnet50-v1-12.onnx"
+	)
+
+	output_files=(
+	"onnxperf.resnet50"
+	)
+
+	perf_subtest=(
+	"cycles_info"
+	)
+
 	for i in "${!model_paths[@]}"; do
 	model_path="${model_paths[$i]}"
 	for j in "${!perf_subtest[@]}"; do
@@ -262,5 +274,24 @@ elif [ "$1" == "report_onnx_with_cnn" ]; then
 
 	cp ./onnxperf.* $ONNXROOT/../
 
+elif [ "$1" == "report_onnx_with_bert" ]; then
+  cp -r ./bert_model_requred/* ./onnxruntime/build/Linux/Release/
+  export ONNXROOT=$(realpath ./onnxruntime)
+  cd onnxruntime/build/Linux/Release
+  mkdir output.bert
+  perf_subtest=(
+	"l1d_info"
+	"llc_w_info"
+	"llc_r_info"
+	"cycles_info"
+	)
+  python ./run_onnx_squad.py --model ./bert.onnx --vocab_file ./uncased_L-12_H-768_A-12/vocab.txt --predict_file ./inputs.json --output ./output.bert
+
+  for j in "${!perf_subtest[@]}"; do
+		output_file="onnxperf.bert.${perf_subtest[$j]}"
+		perf_test="${perf_subtest[$j]}"
+		ONEDNN_VERBOSE=1 ONEDNN_VERBOSE_MORE="$perf_test" python ./run_onnx_squad.py --model ./bert.onnx --vocab_file ./uncased_L-12_H-768_A-12/vocab.txt --predict_file ./inputs.json --output ./output.bert > ./output.bert/"$output_file"
+  done
+  cp ./output.bert/* $ONNXROOT/../
 fi
 
