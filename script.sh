@@ -274,6 +274,46 @@ elif [ "$1" == "report_onnx_with_cnn" ]; then
 
 	cp ./onnxperf.* $ONNXROOT/../
 
+elif [ "$1" == "report_cpu_infrence_latency" ]; then
+  cd onnxruntime
+  export ONNXROOT=$(realpath .)
+  mkdir cnn_model
+  cd cnn_model
+  files=(
+    "resnet50-caffe2-v1-9.onnx=https://github.com/onnx/models/raw/main/vision/classification/resnet/model/resnet50-caffe2-v1-9.onnx"
+  )
+
+	for item in "${files[@]}"; do
+		IFS="=" read -r filename url <<< "$item"
+		if [ ! -f "$filename" ]; then
+			if [ -z "$url" ]; then
+				echo "File '$filename' is missing and no download URL is specified."
+			else
+				echo "Downloading '$filename' from '$url'..."
+				wget "$url"
+				echo "Download of '$filename' complete."
+			fi
+		else
+			echo "File '$filename' already exists."
+		fi
+	done
+
+  cd ..
+  cp ./cnn_cpu_latency_run.py ./build/Linux/Release/cnn_cpu_latency_run.py
+  cd ./build/Linux/Release
+
+  taskset -c 0-63 python3 cnn_cpu_latency_run.py "$ONNXROOT/cnn_model/resnet50-caffe2-v1-9.onnx" "$ONNXROOT/cnn_model/synset.txt" "$ONNXROOT/cnn_model/kitten.jpg" 1 64 > cpu_latency_1batch.info
+  taskset -c 0-63 python3 cnn_cpu_latency_run.py "$ONNXROOT/cnn_model/resnet50-caffe2-v1-9.onnx" "$ONNXROOT/cnn_model/synset.txt" "$ONNXROOT/cnn_model/kitten.jpg" 2 64 > cpu_latency_2batch.info
+  taskset -c 0-63 python3 cnn_cpu_latency_run.py "$ONNXROOT/cnn_model/resnet50-caffe2-v1-9.onnx" "$ONNXROOT/cnn_model/synset.txt" "$ONNXROOT/cnn_model/kitten.jpg" 4 64 > cpu_latency_4batch.info
+  taskset -c 0-63 python3 cnn_cpu_latency_run.py "$ONNXROOT/cnn_model/resnet50-caffe2-v1-9.onnx" "$ONNXROOT/cnn_model/synset.txt" "$ONNXROOT/cnn_model/kitten.jpg" 8 64 > cpu_latency_8batch.info
+  taskset -c 0-63 python3 cnn_cpu_latency_run.py "$ONNXROOT/cnn_model/resnet50-caffe2-v1-9.onnx" "$ONNXROOT/cnn_model/synset.txt" "$ONNXROOT/cnn_model/kitten.jpg" 16 64 > cpu_latency_16batch.info
+  taskset -c 0-63 python3 cnn_cpu_latency_run.py "$ONNXROOT/cnn_model/resnet50-caffe2-v1-9.onnx" "$ONNXROOT/cnn_model/synset.txt" "$ONNXROOT/cnn_model/kitten.jpg" 32 64 > cpu_latency_32batch.info
+  taskset -c 0-63 python3 cnn_cpu_latency_run.py "$ONNXROOT/cnn_model/resnet50-caffe2-v1-9.onnx" "$ONNXROOT/cnn_model/synset.txt" "$ONNXROOT/cnn_model/kitten.jpg" 64 64 > cpu_latency_64batch.info
+  taskset -c 0-63 python3 cnn_cpu_latency_run.py "$ONNXROOT/cnn_model/resnet50-caffe2-v1-9.onnx" "$ONNXROOT/cnn_model/synset.txt" "$ONNXROOT/cnn_model/kitten.jpg" 128 64 > cpu_latency_128batch.info
+  taskset -c 0-63 python3 cnn_cpu_latency_run.py "$ONNXROOT/cnn_model/resnet50-caffe2-v1-9.onnx" "$ONNXROOT/cnn_model/synset.txt" "$ONNXROOT/cnn_model/kitten.jpg" 256 64 > cpu_latency_256batch.info
+
+  cp ./*batch.info $ONNXROOT/../
+
 elif [ "$1" == "report_onnx_with_bert" ]; then
 
  export ONNXROOT=$(realpath ./onnxruntime)
