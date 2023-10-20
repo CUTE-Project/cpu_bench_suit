@@ -16,7 +16,7 @@ This repository counts the performance of the processor during the execution of 
 
 `./script.sh report_cpu_infrence_latency` Execute resnet50 on onnxruntime and count top99%,top90% 1batch inference latency
 
-the script in oneDNN，We prepared two scripts for xeon 6338 and xeon 8475B (supported instruction set, data width, avoiding hyperthreading congestion). It is used to count the best execution of oneDNN when executing each convolutional layer of vgg19 and resnet50.
+the script in oneDNN，We prepared two scripts for xeon 6338 and xeon 8475B (supported instruction set, data width, hot in sharedcache, avoiding hyperthreading congestion). It is used to count the best execution of oneDNN when executing each convolutional layer of vgg19 and resnet50.
 
 `cd oneDNN`
 
