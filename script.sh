@@ -280,6 +280,8 @@ elif [ "$1" == "report_cpu_infrence_latency" ]; then
   mkdir cnn_model
   cd cnn_model
   files=(
+    "synset.txt=https://s3.amazonaws.com/onnx-model-zoo/synset.txt"
+    "kitten.jpg=https://s3.amazonaws.com/model-server/inputs/kitten.jpg"
     "resnet50-caffe2-v1-9.onnx=https://github.com/onnx/models/raw/main/vision/classification/resnet/model/resnet50-caffe2-v1-9.onnx"
   )
 
