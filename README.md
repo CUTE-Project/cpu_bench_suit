@@ -1,8 +1,8 @@
 # cpu bench suit
 
-The current submodule of the repository is a collection of 'state of the art' machine learning software stacks.
+The submodule of this repository is a collection of 'state of the art' machine learning software stacks.
 
-This repository counts the performance of the processor during the execution of each primitive by calling linux system calls, embedding the resident state pmu and registering specific events before and after the execution of the neural network primitive.
+This repository counts the performance of the processor during the execution of each primitive.We register PMUs before and after the execution of neural network primitives and let PMUs 'pin' to get the precise microarchitecture information at the time of execution.
 
 #### Usage
 
